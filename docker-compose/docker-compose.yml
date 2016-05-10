@@ -1,0 +1,33 @@
+version: 2
+
+services:
+  code:
+    build:
+      context: symfony-code
+    container_name: code
+    volumes:
+      - $HOME/symfony-app/code/:/var/www/
+
+  nginx:
+    build:
+      context: nginx
+    container_name: nginx
+    depends_on:
+      - php
+    ports:
+      - 8000:80
+    volumes_from:
+      - code
+
+  php:
+    build:
+      context: php-fpm
+    container_name: php
+    volumes_from:
+      - code
+
+  db:
+    image: mariadb:10.1
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
