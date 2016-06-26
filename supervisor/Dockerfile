@@ -1,7 +1,5 @@
 FROM centos:7
 
-MAINTAINER docker-ecosysteme@dunod.com
-
 RUN yum install -y epel-release && \
     yum update -y && \
     yum install -y mariadb-server mariadb-client\
@@ -14,7 +12,8 @@ RUN yum install -y epel-release && \
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY nginx/symfony.conf /etc/nginx/sites-available/
 RUN mkdir -p /etc/nginx/sites-enabled/ && \
-    ln -s /etc/nginx/sites-available/symfony.conf /etc/nginx/sites-enabled/symfony
+    ln -s /etc/nginx/sites-available/symfony.conf /etc/nginx/sites-enabled/symfony && \
+    mkdir -p /var/www/
 
 #Adaptation de l'UID du user apache
 RUN usermod -u 1000 apache
@@ -23,7 +22,6 @@ RUN usermod -u 1000 apache
 COPY php-fpm/symfony.ini /etc/php.d/
 COPY php-fpm/symfony.pool.conf /etc/php-fpm.d/
 RUN rm -rf /etc/php-fpm.d/www.conf && \
-    mkdir -p /var/www/ && \
     mkdir -p /var/lib/php/session && \
     chown -R apache:apache /var/lib/php
 

@@ -1,7 +1,5 @@
 FROM centos:7
 
-MAINTAINER docker-ecosysteme@dunod.com
-
 RUN yum install -y epel-release && \
     yum update -y && \
     yum install -y php-common php-cli php-fpm php-mysql php-apcu php-curl php-intl php-mbstring && \

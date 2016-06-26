@@ -1,7 +1,5 @@
 FROM nginx
 
-MAINTAINER docker-ecosysteme@dunod.com
-
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY symfony.conf /etc/nginx/sites-available/
 RUN mkdir -p /etc/nginx/sites-enabled/ && \
