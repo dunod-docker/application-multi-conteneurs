@@ -1,17 +1,12 @@
 FROM centos:7
 
-RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
-    yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm &&  \
-    yum install yum-utils && \
-    yum-config-manager --enable remi-php72 && \
+RUN yum install -y epel-release && \
     yum update -y && \
     yum install -y mariadb-server mariadb-client\
                    nginx \
-                   php php-xml php-pecl-zip php-cli php-fpm php-mbstring php-mysqlnd php-opcache \
-                   supervisor \
-                   git unzip && \
+                   php-common php-cli php-fpm php-mysql php-apcu php-curl php-intl php-mbstring \
+                   supervisor && \
     yum clean all
-
 
 #Copie de la configuration de Nginx
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
@@ -24,19 +19,15 @@ RUN mkdir -p /etc/nginx/sites-enabled/ && \
 RUN usermod -u 1000 apache
 
 #Copie de la configuration php pour Symfony
+COPY php-fpm/symfony.ini /etc/php.d/
 COPY php-fpm/symfony.pool.conf /etc/php-fpm.d/
-RUN rm -rf /etc/php-fpm.d/www.conf
+RUN rm -rf /etc/php-fpm.d/www.conf && \
+    mkdir -p /var/lib/php/session && \
+    chown -R apache:apache /var/lib/php
 
-#C'est ici que le fichier PID de PHP-FPM sera créé
-RUN mkdir /run/php-fpm && chown -R apache:apache /run/php-fpm
-
-#Installation de Composer
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-RUN php composer-setup.php
-RUN php -r "unlink('composer-setup.php');"
-RUN mv composer.phar /usr/local/bin/composer
-ENV COMPOSER_CACHE_DIR /tmp/composer
-
+#Copie des ficher de l'application Symfony
+RUN curl -LsS https://symfony.com/installer -o /usr/local/bin/symfony && \
+    chmod a+x /usr/local/bin/symfony
 
 # Execute le script d'installation de MariaDB et donne les droits à l'utilisateur mysql
 RUN /usr/bin/mysql_install_db > /dev/null && \
