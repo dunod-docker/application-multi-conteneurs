@@ -1,25 +1,19 @@
 FROM centos:7
 
-MAINTAINER docker-ecosysteme@dunod.com
-
-RUN yum install -y epel-release && \
+RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm &&  \
+    yum install yum-utils && \
+    yum-config-manager --enable remi-php72 && \
     yum update -y && \
-    yum install -y php-common php-cli php-fpm php-mysql php-apcu php-curl php-intl php-mbstring && \
+    yum install -y php php-xml php-pecl-zip php-cli php-fpm php-mbstring php-mysqlnd php-opcache \
+                   git unzip && \
     yum clean all
-    #php-common php-cli php-mbstring php-fpm php-intl php-mysql php-apcu
 
- RUN usermod -u 1000 apache
-
-COPY symfony.ini /etc/php.d/
 COPY symfony.pool.conf /etc/php-fpm.d/
-RUN rm -rf /etc/php-fpm.d/www.conf && \
-    mkdir -p /var/www/ && \
-    mkdir -p /var/lib/php/session && \
-    chown -R apache:apache /var/lib/php
+RUN rm -rf /etc/php-fpm.d/www.conf
 
-RUN curl -LsS https://symfony.com/installer -o /usr/local/bin/symfony && \
-    chmod a+x /usr/local/bin/symfony
+RUN mkdir /run/php-fpm && chown -R apache:apache /run/php-fpm
 
 EXPOSE 9000
 
-CMD ["/usr/sbin/php-fpm", "-c /etc/php-fpm.d"]
+CMD ["/usr/sbin/php-fpm", "--nodaemonize", "-c /etc/php-fpm.d"]
