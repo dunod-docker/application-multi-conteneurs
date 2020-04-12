@@ -30,7 +30,7 @@ RUN curl -LsS https://symfony.com/installer -o /usr/local/bin/symfony && \
     chmod a+x /usr/local/bin/symfony
 
 # Execute le script d'installation de MariaDB et donne les droits à l'utilisateur mysql
-RUN /usr/bin/mysql_install_db > /dev/null && \
+RUN /usr/bin/mysql_install_db --force > /dev/null && \
     chown -R mysql:mysql /var/lib/mysql/
 #Requis par MariaDB pour pouvoir utiliser le client MariaDB depuis l'intérieur du container
 RUN echo -e "\nexport TERM=xterm" >> ~/.bashrc
